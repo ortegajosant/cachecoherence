@@ -1,4 +1,3 @@
-# from Control import Control
 from Memory import Memory
 import threading
 
