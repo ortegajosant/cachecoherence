@@ -19,6 +19,8 @@ pause = True
 list_data = []
 list_cache = []
 threads = []
+run = True
+infinite = True
 
 
 def begin():
@@ -119,13 +121,13 @@ def begin():
     button_infinite = tk.Button(window, text="Inf", command=infi_func)
     button_pause = tk.Button(window, text="Pause", command=change_pause)
 
-    button_step.place(x=150, y=400)
-    button_cicle.place(x=200, y=400)
-    button_infinite.place(x=250, y=400)
-    button_pause.place(x=300, y=400)
+    button_step.place(x=100, y=400)
+    button_cicle.place(x=250, y=400)
+    button_infinite.place(x=350, y=400)
+    button_pause.place(x=350, y=440)
 
     entry = tk.Entry(window, width=5)
-    entry.place(x=200, y=400)
+    entry.place(x=250, y=440)
 
     window.mainloop()
 
@@ -142,10 +144,11 @@ def step_func():
 
 def cicle_func():
     global entry
+    
+    cicles = entry.get()
 
-    cicles = int(entry.get())
-
-    execute_instructon(cicles)
+    if len(cicles) != 0:
+        execute_instructon(int(cicles))
 
 
 def infi_func():
@@ -204,7 +207,7 @@ def execute_instructon(cicle):
 
 
 def execute_proc_1():
-    global processors
+    global processors, run
 
     processors[0].execute()
     update_memory()
