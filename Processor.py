@@ -31,10 +31,6 @@ class Processor:
         if len(self.current_ins) == 0:
             print("No instruction loaded")
         else:
-            string_ins = ""
-            for i in self.current_ins:
-                string_ins += str(i) + " "
-            print("Proc: ", self.number, string_ins)
             if self.current_ins[0] == "write":
                 data = self.control.write_data(
                     self.current_ins[1], self.current_ins[2])

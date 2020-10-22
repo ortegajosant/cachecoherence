@@ -7,28 +7,6 @@ class Control:
     def __init__(self, number):
         self.cache = Cache()
         self.cache_state = self.cache.cache_mem
-        # self.cache_state = {
-        #     "0": [
-        #         {
-        #             "state": "I",
-        #             "dir": None
-        #         },
-        #         {
-        #             "state": "I",
-        #             "dir": None
-        #         }
-        #     ],
-        #     "1": [
-        #         {
-        #             "state": "I",
-        #             "dir": None
-        #         },
-        #         {
-        #             "state": "I",
-        #             "dir": None
-        #         }
-        #     ]
-        # }
         self.cache_state
         self.bus = Bus.get_instance()
         self.bus.set_proc_control(number, self)

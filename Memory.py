@@ -29,5 +29,5 @@ class Memory:
     def write_data(self, dir_mem, data):
         for i in range(len(self.memory)):
             if i == dir_mem:
-                self.memory[i] = data
+                self.memory[i] = data["value"]
                 return self.memory[i]
