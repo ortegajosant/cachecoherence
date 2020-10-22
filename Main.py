@@ -1,12 +1,24 @@
-from Memory import Memory
+from Processor import Processor
+import threading
+import tkinter as tk
+
+def main_loop():
+    pass
+
 
 def main():
-    memory = Memory.get_instance()
-    memory2 = Memory.get_instance()
-    print(memory.read_data(1))
-    print(memory2.read_data(1))
-    memory.set_data(1, "0x8569")
-    print(memory.write_data(1))
-    print(memory2.write_data(1))
+
+    processors = []
+
+    for i in range(1, 5):
+        processors.append(Processor(i))
+
+    count = 0
+    while count < 5:
+        print("\n -- Iteration ", count, "--\n")
+        for i in processors:
+            i.execute()
+        
+        count += 1
 
 main()

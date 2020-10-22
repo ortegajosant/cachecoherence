@@ -31,7 +31,7 @@ class Control:
         # }
         self.cache_state
         self.bus = Bus.get_instance()
-        self.bus.set_proc_number(number, self)
+        self.bus.set_proc_control(number, self)
         self.number = number
 
     def read_data(self, dir_mem, out_request=False):
@@ -48,11 +48,12 @@ class Control:
         elif block_set[1]["dir"] == dir_mem and block_set[1]["state"] != "I":
             block = self.cache.read_data(dir_mem)
             i = 1
-
+        
         if isinstance(block, str) and not out_request:
-            self.check_bus_data(dir_mem, "read")
-        elif out_request:
+            return self.check_bus_data(dir_mem, "read")
+        elif not isinstance(block, str) and out_request:
             replacement_state = "S"
+            print(block)
             if block["state"] == "E" or block["state"] == "M":
                 replacement_local_state = ""
                 if block["state"] == "E":
@@ -62,7 +63,10 @@ class Control:
                 self.cache.change_state(dir_mem, replacement_local_state, i)
 
             return (replacement_state, block["value"])
-            
+        elif not isinstance(block, str):
+            return block["value"]
+        else:
+            return ()
 
     def check_bus_data(self, dir_mem, flag_func):
         block_set = []
@@ -78,7 +82,9 @@ class Control:
             block = block_set[1]
 
         block = self.bus.read_data(dir_mem, self.number)
-        self.__replacement_policie(dir_mem, block)
+        i = self.__replacement_policie(dir_mem)
+        self.cache.write_data(block[1], i, dir_mem, block[0])
+        return block
 
     def write_data(self, dir_mem, data):
         block_set = []
@@ -94,12 +100,12 @@ class Control:
             block = 1
 
         if isinstance(block, str):
-            block = self.__replacement_policie(dir_mem, "M")
+            block = self.__replacement_policie(dir_mem)
 
         self.bus.invalidate_all(dir_mem, self.number)
-        self.cache.write_data(data, block, dir_mem, "M")
+        return self.cache.write_data(data, block, dir_mem, "M")
 
-    def __replacement_policie(self, dir_mem, state, func=None):
+    def __replacement_policie(self, dir_mem):
         block_set = []
         if dir_mem % 2 == 0:
             block_set = self.cache_state["0"]
@@ -125,14 +131,14 @@ class Control:
             i = 0
             if block_set[1]["state"] == "M" and block_set[0]["state"] != "M":
                 i = 1
-            value = self.cache.read_data(self.block_set[i]["dir"])
+            value = self.cache.read_data(block_set[i]["dir"])
             self.bus.write_mem_data(block_set[i]["dir"], value)
 
         elif block_set[0]["state"] == "O" or block_set[1]["state"] == "O":
             i = 0
             if block_set[1]["state"] == "O" and block_set[0]["state"] != "O":
                 i = 1
-            value = self.cache.read_data(self.block_set[i]["dir"])
+            value = self.cache.read_data(block_set[i]["dir"])
             self.bus.write_mem_data(block_set[i]["dir"], value)
 
         return i
@@ -152,7 +158,7 @@ class Control:
 
         if not isinstance(block, str):
             if block_set[block]["state"] == "M" or block_set[block]["state"] == "O":
-                value = self.cache.read_data(self.block_set[block]["dir"])
+                value = self.cache.read_data(block_set[block]["dir"])
                 self.bus.write_mem_data(block_set[block]["dir"], value)
             self.cache.change_state(dir_mem, "I", block)
             return True

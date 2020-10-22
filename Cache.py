@@ -42,7 +42,7 @@ class Cache():
         elif block_set[1]["dir"] == dir_mem:
             block = block_set[1]
 
-        return block["value"]
+        return block
 
     def write_data(self, value, replacement_dir, dir_mem, state=None):
         block = ""
@@ -61,10 +61,10 @@ class Cache():
         return value
 
     def change_state(self, dir_mem, state, replacement_dir):
-        
+
         if dir_mem % 2 == 0:
             self.cache_mem["0"][replacement_dir]["state"] = state
         else:
             self.cache_mem["1"][replacement_dir]["state"] = state
-        
+
         return state

@@ -16,10 +16,10 @@ class Memory:
         return Memory.__instance
 
     def __init__(self):
-        self.memory = ["0x000", "0x000", "0x000", "0x000",
-                       "0x000", "0x000", "0x000", "0x000",
-                       "0x000", "0x000", "0x000", "0x000",
-                       "0x000", "0x000", "0x000", "0x000"]
+        self.memory = ["0x0000", "0x0000", "0x0000", "0x0000",
+                       "0x0000", "0x0000", "0x0000", "0x0000",
+                       "0x0000", "0x0000", "0x0000", "0x0000",
+                       "0x0000", "0x0000", "0x0000", "0x0000"]
 
     def read_data(self, dir_mem):
         for i in range(len(self.memory)):

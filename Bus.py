@@ -1,4 +1,4 @@
-from Control import Control
+# from Control import Control
 from Memory import Memory
 import threading
 
@@ -50,13 +50,11 @@ class Bus:
                 block = self.proc_control_4.read_data(dir_mem, True)
 
             if len(block) != 0:
-                break
+                return block
             i += 1
 
-        if len(block) != 0:
-            pass
-
-        return self.memory.read_data(dir_mem)
+        value = self.memory.read_data(dir_mem)
+        return ("E", value)
 
     def write_mem_data(self, dir_mem, data):
         self.memory.write_data(dir_mem, data)
