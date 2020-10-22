@@ -1,6 +1,7 @@
 from Processor import Processor
 import threading
 import tkinter as tk
+import copy
 from time import sleep
 
 
@@ -15,12 +16,14 @@ cache4 = {}
 next_list = []
 current_list = []
 entry = ""
-pause = True
 list_data = []
 list_cache = []
 threads = []
 run = True
-infinite = True
+infinite = False
+cicles = 0
+step = False
+multiple_steps = False
 
 
 def begin():
@@ -115,7 +118,6 @@ def begin():
     current_list = [current_ins_1, current_ins_2, current_ins_3, current_ins_4]
     next_list = [next_ins_1, next_ins_2, next_ins_3, next_ins_4]
 
-
     button_step = tk.Button(window, text="Step by step", command=step_func)
     button_cicle = tk.Button(window, text="Cicle", command=cicle_func)
     button_infinite = tk.Button(window, text="Inf", command=infi_func)
@@ -129,34 +131,32 @@ def begin():
     entry = tk.Entry(window, width=5)
     entry.place(x=250, y=440)
 
-    window.mainloop()
-
 
 def change_pause():
-    global pause
-    if pause:
-        pause = False
+    global infinite
+    if infinite:
+        infinite = False
 
 
 def step_func():
-    execute_instructon(1)
+    global step
+    step = not step 
 
 
 def cicle_func():
-    global entry
-    
+    global entry, cicles, multiple_steps
+
     cicles = entry.get()
 
     if len(cicles) != 0:
-        execute_instructon(int(cicles))
+        cicles = int(cicles)
+        multiple_steps = not multiple_steps
+
 
 
 def infi_func():
-    global pause
-    pause = True
-
-    while pause:
-        step_func()
+    global infinite
+    infinite = True
 
 
 def update_memory():
@@ -180,7 +180,6 @@ def update_cache(number):
         cache = cache4
     string = ""
     count = 0
-    # print(cache)
     for i in cache["0"]:
         string += i["state"] + "\t" + i["value"] + "\t" + str(i["dir"])
         list_cache[number - 1].insert(count, string)
@@ -194,52 +193,31 @@ def update_cache(number):
         count += 1
 
 
-def execute_instructon(cicle):
-    count = 0
-
-    while (count < cicle):
-        execute_proc_1()
-        execute_proc_2()
-        execute_proc_3()
-        execute_proc_4()
-        sleep(1)
-        count += 1
-
-
-def execute_proc_1():
-    global processors, run
-
-    processors[0].execute()
-    update_memory()
-    update_cache(1)
-    update_instructions(1)
-
-
-def execute_proc_2():
-    global processors
-
-    processors[1].execute()
-    update_memory()
-    update_cache(2)
-    update_instructions(2)
-
-
-def execute_proc_3():
-    global processors
-
-    processors[2].execute()
-    update_memory()
-    update_cache(3)
-    update_instructions(3)
-
-
-def execute_proc_4():
-    global processors
-
-    processors[3].execute()
-    update_memory()
-    update_cache(4)
-    update_instructions(4)
+def execute_proc(number):
+    global processors, run, cicles, step, multiple_steps
+    local_cicles = 0
+    cicle = 0
+    local_step = False
+    local_steps = False
+    while (run):
+        if local_step != step:
+            local_step = copy.copy(step)
+            local_cicles = 1
+            cicle = 0
+        elif local_steps != multiple_steps:
+            local_cicles = copy.copy(cicles)
+            local_steps = copy.copy(multiple_steps)
+            cicle = 0
+        
+        while (infinite or cicle < local_cicles):
+            with threading.Lock():
+                processors[number].execute()
+                update_memory()
+                update_cache(number + 1)
+                update_instructions(number + 1)
+                if local_cicles > 1 or infinite:
+                    sleep(2)
+                cicle += 1
 
 
 def update_instructions(number):
@@ -261,14 +239,8 @@ def set_initial_data():
 
     for i in range(1, 5):
         processors.append(Processor(i))
-        if i == 1:
-            threads.append(threading.Thread(target=execute_proc_1))
-        elif i == 2:
-            threads.append(threading.Thread(target=execute_proc_2))
-        elif i == 3:
-            threads.append(threading.Thread(target=execute_proc_2))
-        elif i == 4:
-            threads.append(threading.Thread(target=execute_proc_4))
+        threads.append(threading.Thread(target=execute_proc, args=(i-1,)))
+        threads[i - 1].start()
 
     memory = processors[0].control.bus.memory.memory
     cache1 = processors[0].control.cache.cache_mem
@@ -276,14 +248,27 @@ def set_initial_data():
     cache3 = processors[2].control.cache.cache_mem
     cache4 = processors[3].control.cache.cache_mem
 
-    
+
+def on_finish():
+    global threads, run, window
+
+    run = False
+
+    for thread in threads:
+        thread.join()
+
+    window.destroy()
 
 
 def main():
+    global window
 
     set_initial_data()
 
     begin()
+
+    window.protocol("WM_DELETE_WINDOW", on_finish)
+    window.mainloop()
 
 
 main()

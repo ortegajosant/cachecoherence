@@ -1,6 +1,5 @@
 import threading
 
-
 class Memory:
 
     __instance = None

@@ -1,3 +1,5 @@
+from copy import copy
+
 class Cache():
 
     def __init__(self):
@@ -52,7 +54,7 @@ class Cache():
         else:
             block = self.cache_mem["1"][replacement_dir]
 
-        block["value"] = value
+        block["value"] = copy(value)
         block["dir"] = dir_mem
 
         if state != None:
