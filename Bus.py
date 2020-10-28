@@ -59,9 +59,6 @@ class Bus:
         self.memory.write_data(dir_mem, data)
         return self.memory.read_data(dir_mem)
 
-    def change_state(self, dir, func):
-        pass
-
     def invalidate_all(self, dir_mem, number):
 
         i = 1
